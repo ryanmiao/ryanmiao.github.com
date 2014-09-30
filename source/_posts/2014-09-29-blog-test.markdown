@@ -1,0 +1,48 @@
+---
+layout: post
+title: "blog test"
+date: 2014-09-29 23:47:10 +0800
+comments: true
+categories: 
+---
+### new test blog
+
+this is another sample:
+```
+int main() {
+        printf("hello world\n");
+}
+```
+
+this is a sample code:
+``` c linux-user/main1.c http://abc.org debugging qemu syscall link addr start:300 mark:9,10-20 linenos:true
+int main() {
+	printf("hello world\n");
+}
+```
+
+this is another sample:
+``` c linux-user/main2.c
+int main() {
+        printf("hello world\n");
+}
+```
+
+this is another sample:
+``` c linux-user/main3.c debugging qemu syscall link addr start:300 mark:9,10-20 linenos:true
+int main() {
+        printf("hello world\n");
+}
+```
+
+this is another sample:
+```
+int main() {
+        printf("hello world\n");
+}
+```
+
+
+
+
+

@@ -3,23 +3,45 @@ require './plugins/pygments_code'
 module BacktickCodeBlock
   AllOptions = /([^\s]+)\s+(.+?)\s+(https?:\/\/\S+|\/\S+)\s*(.+)?/i
   LangCaption = /([^\s]+)\s*(.+)?/i
+  RestOptions = /(.*?)(\w+):([^\s]+)\s?(.*)?/i
   def self.render_code_block(input)
     @options = nil
-    @caption = nil
     @lang = nil
     @url = nil
-    @title = nil
+    @urlname = nil
     input.gsub(/^`{3} *([^\n]+)?\n(.+?)\n`{3}/m) do
+      @title = nil
+      @caption = nil
+      @rest = nil
+      @offset = nil
       @options = $1 || ''
       str = $2
 
       if @options =~ AllOptions
         @lang = $1
-        @caption = "<figcaption><span>#{$2}</span><a href='#{$3}'>#{$4 || 'link'}</a></figcaption>"
+        @title = $2
+        @url = $3
+        @rest = $4
+        while @rest =~ RestOptions
+          @urlname = $1 if !$1.empty?
+          @offset = $3 if $2 == "start"
+          @rest = $4
+        end
+        #@caption = "<figcaption><span>#{$2}</span><a href='#{$3}'>#{$4 || 'link'}</a></figcaption>"
+        @caption = "<figcaption><span>#{@title}</span><a href='#{@url}'>#{@urlname || 'link'}</a></figcaption>"
       elsif @options =~ LangCaption
         @lang = $1
-        @caption = "<figcaption><span>#{$2}</span></figcaption>"
+        @rest = $2
+        @title = @rest
+        while @rest =~ RestOptions
+          @title = $1 if !$1.empty?
+          @offset = $3 if $2 == "start"
+          @rest = $4
+        end
+        #@caption = "<figcaption><span>#{$2}</span></figcaption>"
+        @caption = "<figcaption><span>#{@title}</span></figcaption>"
       end
+
 
       if str.match(/\A( {4}|\t)/)
         str = str.gsub(/^( {4}|\t)/, '')
@@ -33,7 +55,7 @@ module BacktickCodeBlock
           raw += str
           raw += "\n```\n"
         else
-          code = HighlightCode::highlight(str, @lang)
+          code = HighlightCode::highlight(str, @lang, @offset)
           "<figure class='code'>#{@caption}#{code}</figure>"
         end
       end

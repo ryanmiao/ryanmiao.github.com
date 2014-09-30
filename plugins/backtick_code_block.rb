@@ -25,6 +25,7 @@ module BacktickCodeBlock
         while @rest =~ RestOptions
           @urlname = $1 if !$1.empty?
           @offset = $3 if $2 == "start"
+          linenos = $3 if $2 == "linenos"
           @rest = $4
         end
         #@caption = "<figcaption><span>#{$2}</span><a href='#{$3}'>#{$4 || 'link'}</a></figcaption>"
@@ -36,6 +37,7 @@ module BacktickCodeBlock
         while @rest =~ RestOptions
           @title = $1 if !$1.empty?
           @offset = $3 if $2 == "start"
+          linenos = $3 if $2 == "linenos"
           @rest = $4
         end
         #@caption = "<figcaption><span>#{$2}</span></figcaption>"
@@ -55,7 +57,7 @@ module BacktickCodeBlock
           raw += str
           raw += "\n```\n"
         else
-          code = HighlightCode::highlight(str, @lang, @offset)
+          code = HighlightCode::highlight(str, @lang, linenos, @offset)
           "<figure class='code'>#{@caption}#{code}</figure>"
         end
       end

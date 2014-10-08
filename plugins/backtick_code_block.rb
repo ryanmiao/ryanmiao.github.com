@@ -24,7 +24,10 @@ module BacktickCodeBlock
         @rest = $4
         while @rest =~ RestOptions
           @urlname = $1 if !$1.empty?
-          @offset = $3 if $2 == "start"
+          if $2 == "start"
+            @offset = $3
+            linenos = "true"
+          end
           linenos = $3 if $2 == "linenos"
           @rest = $4
         end
@@ -37,13 +40,16 @@ module BacktickCodeBlock
         while @rest =~ RestOptions
           @title = $1 if !$1.empty?
           @offset = $3 if $2 == "start"
+          if $2 == "start"
+            @offset = $3
+            linenos = "true"
+          end
           linenos = $3 if $2 == "linenos"
           @rest = $4
         end
         #@caption = "<figcaption><span>#{$2}</span></figcaption>"
         @caption = "<figcaption><span>#{@title}</span></figcaption>"
       end
-
 
       if str.match(/\A( {4}|\t)/)
         str = str.gsub(/^( {4}|\t)/, '')

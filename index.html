@@ -113,6 +113,120 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-10-27T14:21:53+08:00"  data-updated="true" itemprop="datePublished dateCreated"><time class='entry-date' datetime='2014-10-27T14:21:53+08:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>27</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>2:21 pm</span></time></time>
+        
+           | <a href="/blog/2014/10/27/construct-virtualization-on-rhel6u5/#disqus_thread" itemprop="discussionUrl"
+             data-disqus-identifier="http://jinchengmiao.com/blog/2014/10/27/construct-virtualization-on-rhel6u5/">Comments</a>
+        
+      </p>
+    
+    
+      <h1 class="entry-title" itemprop="name headline"><a href="/blog/2014/10/27/construct-virtualization-on-rhel6u5/" itemprop="url">Construct Virtualization on RHEL6u5</a></h1>
+    
+  </header>
+
+
+  <div class="entry-content clearfix" itemprop="articleBody description"><p>RHEL6u5 is stable distro for building a somewhat server. And if you also
+like traditional SysV instead of systemD, this article gives you a guide
+to construct virtualization from source on RHEL6u5.</p>
+
+<h4>Prerequisite</h4>
+
+<p>source code of kernel, qemu and libvirt</p>
+
+<p>libiscsi: 1.11.0-9-g20b4f9a
+libnfs:   libnfs-1.9.4-6-gea283cd
+libusb:   v1.0.19</p>
+
+<p>qemu:     v2.1.0-1124-gb1d28ec
+kernel:   v3.18-rc1-221-gc3351df
+libvirt:  v1.2.9-110-ga27021a</p>
+
+<h4>1. Build kernel</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"></pre></td><td class='code'><pre><code class=''><span class='line'>#make bzImage
+</span><span class='line'>#make modules
+</span><span class='line'>#make modules_install
+</span><span class='line'>#make install</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>2. BUild qemu</h4>
+
+<h5>2.1 Build libiscsi, libusb and libnfs respectively</h5>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"></pre></td><td class='code'><pre><code class=''><span class='line'>#git clone https://github.com/sahlberg/libiscsi.git
+</span><span class='line'>#autogen
+</span><span class='line'>#make
+</span><span class='line'>#sudo make install
+</span><span class='line'>
+</span><span class='line'>#git clone https://github.com/libusb/libusb.git
+</span><span class='line'>#autogen
+</span><span class='line'>#make
+</span><span class='line'>#sudo make install
+</span><span class='line'>
+</span><span class='line'>#git clone https://github.com/sahlberg/libnfs.git
+</span><span class='line'>#bootstrap
+</span><span class='line'>#make
+</span><span class='line'>#sudo make install</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You have to set PKG_CONFIG_PATH to &lsquo;/usr/local/lib/pkgconfig&rsquo;
+to continue configure.</p>
+
+<h5>2.2 Generate qemu</h5>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"></pre></td><td class='code'><pre><code class=''><span class='line'># git clone https://github.com/qemu/qemu.git
+</span><span class='line'>
+</span><span class='line'># ./configure --target-list=x86_64-softmmu --enable-debug-tcg --enable-debug --disable-strip --enable-vnc --enable-vnc-tls --enable-kvm --enable-uuid --enable-attr --enable-vhost-net --enable-spice --enable-libiscsi --enable-libnfs --enable-libusb --enable-guest-agent --enable-glusterfs</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>3. Build libvirt</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"></pre></td><td class='code'><pre><code class=''><span class='line'># autogen --system
+</span><span class='line'># make
+</span><span class='line'># make install</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>4. Troubleshoot</h4>
+
+<h5>4.1 qemu: could not load PC BIOS &lsquo;bios-256k.bin&rsquo;</h5>
+
+<p>Answer: don&rsquo;t specify prefix when configuring qemu, use default prefix instead.</p>
+
+<h5>4.2 cannot execute binary /usr/libexec/qemu-kvm: Permission denied</h5>
+
+<p>Answer: if SELinux is enabled, it may be caused by SELinux.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"></pre></td><td class='code'><pre><code class=''><span class='line'># chcon system_u:object_r:qemu_exec_t:s0 /usr/local/bin/qemu-system-x86_64</span></code></pre></td></tr></table></div></figure>
+
+
+<p>[The end]</p>
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-08-12T16:23:55+08:00"  data-updated="true" itemprop="datePublished dateCreated"><time class='entry-date' datetime='2014-08-12T16:23:55+08:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>12</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>4:23 pm</span></time></time>
         
            | <a href="/blog/2014/08/12/debugging-qemu-linux-user-mode-clone-syscall-emulation/#disqus_thread" itemprop="discussionUrl"
@@ -382,6 +496,8 @@ This patch is merged into upstream: commit 47575997.</p>
   </div>
   
   <div id="recent_posts" class="list-group">
+    
+    <a class="list-group-item " href="/blog/2014/10/27/construct-virtualization-on-rhel6u5/">Construct Virtualization on RHEL6u5</a>
     
     <a class="list-group-item " href="/blog/2014/08/12/debugging-qemu-linux-user-mode-clone-syscall-emulation/">Debugging Qemu Linux User Mode Clone Syscall Emulation</a>
     

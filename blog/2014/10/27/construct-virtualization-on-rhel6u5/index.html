@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Construct Virtualization on RHEL6u5 - Jade Palace</title>
+  <meta name="author" content="Jincheng Miao">
+
+  
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://jinchengmiao.com/blog/2014/10/27/construct-virtualization-on-rhel6u5">
+  <link href="/favicon.png" type="image/png" rel="icon">
+  <link href="/atom.xml" rel="alternate" title="Jade Palace" type="application/atom+xml">
+
+  <!-- http://opengraphprotocol.org/ -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="http://jinchengmiao.com/blog/2014/10/27/construct-virtualization-on-rhel6u5">
+  <meta property="og:title" content="Construct Virtualization on RHEL6u5 - Jade Palace">
+  
+
+  <script src="/javascripts/libs/jquery/jquery-2.0.3.min.js"></script>
+
+<link href="/assets/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+<link href="/assets/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css">
+
+
+  
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+  <body   >
+    <div id="wrap">
+      <header role="banner">
+        <nav class="navbar navbar-default" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Jade Palace</a>
+        </div>
+
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li class="active">
+                    <a rel="index" href="/">Blog</a>
+                </li>
+                <li >
+                    <a href="/blog/archives">Archives</a>
+                </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a class="subscribe-rss" href="/atom.xml" title="subscribe via RSS">
+                        <span class="visible-xs">RSS</span>
+                        <img class="hidden-xs" src="/images/rss.png" alt="RSS">
+                    </a>
+                </li>
+                
+            </ul>
+            
+                <form class="search navbar-form navbar-right" action="https://www.bing.com/search" method="GET">
+                    <input type="hidden" name="q" value="site:jinchengmiao.com">
+                    <div class="form-group">
+                        <input class="form-control" type="text" name="q" placeholder="Search">
+                    </div>
+                </form>
+            
+        </div>
+    </div>
+</nav>
+
+
+      </header>
+      <div id="main" class="container">
+        <div id="content">
+          <div class="row">
+  <div class="page-content col-md-9" itemscope itemtype="http://schema.org/Blog">
+    <meta itemprop="name" content="Jade Palace" />
+    
+    <meta itemprop="url" content="http://jinchengmiao.com" />
+    <article class="hentry" role="article" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
+      
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-10-27T14:21:53+08:00"  data-updated="true" itemprop="datePublished dateCreated"><time class='entry-date' datetime='2014-10-27T14:21:53+08:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>27</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>2:21 pm</span></time></time>
+        
+           | <a href="#disqus_thread" itemprop="discussionUrl"
+             data-disqus-identifier="http://jinchengmiao.com">Comments</a>
+        
+      </p>
+    
+    
+    <h1 class="entry-title" itemprop="name headline">
+        Construct Virtualization on RHEL6u5
+        
+    </h1>
+    
+  </header>
+
+
+<div class="entry-content clearfix" itemprop="articleBody description"><p>RHEL6u5 is stable distro for building a somewhat server. And if you also
+like traditional SysV instead of systemD, this article gives you a guide
+to construct virtualization from source on RHEL6u5.</p>
+
+<h4>Prerequisite</h4>
+
+<p>source code of kernel, qemu and libvirt</p>
+
+<p>libiscsi: 1.11.0-9-g20b4f9a
+libnfs:   libnfs-1.9.4-6-gea283cd
+libusb:   v1.0.19</p>
+
+<p>qemu:     v2.1.0-1124-gb1d28ec
+kernel:   v3.18-rc1-221-gc3351df
+libvirt:  v1.2.9-110-ga27021a</p>
+
+<h4>1. Build kernel</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"></pre></td><td class='code'><pre><code class=''><span class='line'>#make bzImage
+</span><span class='line'>#make modules
+</span><span class='line'>#make modules_install
+</span><span class='line'>#make install</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>2. BUild qemu</h4>
+
+<h5>2.1 Build libiscsi, libusb and libnfs respectively</h5>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"></pre></td><td class='code'><pre><code class=''><span class='line'>#git clone https://github.com/sahlberg/libiscsi.git
+</span><span class='line'>#autogen
+</span><span class='line'>#make
+</span><span class='line'>#sudo make install
+</span><span class='line'>
+</span><span class='line'>#git clone https://github.com/libusb/libusb.git
+</span><span class='line'>#autogen
+</span><span class='line'>#make
+</span><span class='line'>#sudo make install
+</span><span class='line'>
+</span><span class='line'>#git clone https://github.com/sahlberg/libnfs.git
+</span><span class='line'>#bootstrap
+</span><span class='line'>#make
+</span><span class='line'>#sudo make install</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You have to set PKG_CONFIG_PATH to &lsquo;/usr/local/lib/pkgconfig&rsquo;
+to continue configure.</p>
+
+<h5>2.2 Generate qemu</h5>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"></pre></td><td class='code'><pre><code class=''><span class='line'># git clone https://github.com/qemu/qemu.git
+</span><span class='line'>
+</span><span class='line'># ./configure --target-list=x86_64-softmmu --enable-debug-tcg --enable-debug --disable-strip --enable-vnc --enable-vnc-tls --enable-kvm --enable-uuid --enable-attr --enable-vhost-net --enable-spice --enable-libiscsi --enable-libnfs --enable-libusb --enable-guest-agent --enable-glusterfs</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>3. Build libvirt</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"></pre></td><td class='code'><pre><code class=''><span class='line'># autogen --system
+</span><span class='line'># make
+</span><span class='line'># make install</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>4. Troubleshoot</h4>
+
+<h5>4.1 qemu: could not load PC BIOS &lsquo;bios-256k.bin&rsquo;</h5>
+
+<p>Answer: don&rsquo;t specify prefix when configuring qemu, use default prefix instead.</p>
+
+<h5>4.2 cannot execute binary /usr/libexec/qemu-kvm: Permission denied</h5>
+
+<p>Answer: if SELinux is enabled, it may be caused by SELinux.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"></pre></td><td class='code'><pre><code class=''><span class='line'># chcon system_u:object_r:qemu_exec_t:s0 /usr/local/bin/qemu-system-x86_64</span></code></pre></td></tr></table></div></figure>
+
+
+<p>[The end]</p>
+</div>
+
+
+      <footer>
+        <p class="meta text-muted">
+          
+  
+
+<span class="glyphicon glyphicon-user"></span> <span class="byline author vcard" itemprop="author" itemscope itemtype="http://schema.org/Person">Posted by <span class="fn" itemprop="name">Jincheng Miao</span></span>
+
+          
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2014-10-27T14:21:53+08:00"  data-updated="true" itemprop="datePublished dateCreated"><time class='entry-date' datetime='2014-10-27T14:21:53+08:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>27</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>2:21 pm</span></time></time>
+          
+
+
+        </p>
+        
+          <div class="sharing">
+  
+  
+  
+</div>
+
+        
+        
+          <ul class="meta text-muted pager">
+            
+            <li class="previous"><a href="/blog/2014/08/12/debugging-qemu-linux-user-mode-clone-syscall-emulation/" title="Previous Post: debugging qemu linux user mode clone syscall emulation">&laquo; debugging qemu linux user mode clone syscall emulation</a></li>
+            
+            
+          </ul>
+        
+      </footer>
+    </article>
+    
+      <section>
+        <h1>Comments</h1>
+        <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+      </section>
+    
+  </div>
+
+  
+  <aside class="sidebar col-md-3">
+    
+      <section class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Recent Posts</h3>
+  </div>
+  
+  <div id="recent_posts" class="list-group">
+    
+    <a class="list-group-item active" href="/blog/2014/10/27/construct-virtualization-on-rhel6u5/">Construct Virtualization on RHEL6u5</a>
+    
+    <a class="list-group-item " href="/blog/2014/08/12/debugging-qemu-linux-user-mode-clone-syscall-emulation/">Debugging Qemu Linux User Mode Clone Syscall Emulation</a>
+    
+  </div>
+</section>
+
+
+
+
+    
+  </aside>
+  
+</div>
+
+        </div>
+      </div>
+    </div>
+    <footer role="contentinfo"><div class="container">
+    <p class="text-muted credits">
+  Copyright &copy; 2014 - Jincheng Miao<br>
+  <small>
+      <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>,
+      <span class="credit">customized with <a href="https://github.com/kAworu/octostrap3">octostrap3</a></span>.
+  </small>
+</p>
+
+</div>
+</footer>
+    
+
+<script type="text/javascript">
+      var disqus_shortname = 'jinchengmiao';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://jinchengmiao.com/blog/2014/10/27/construct-virtualization-on-rhel6u5/';
+        var disqus_url = 'http://jinchengmiao.com/blog/2014/10/27/construct-virtualization-on-rhel6u5/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+
+<script src="/assets/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="/javascripts/modernizr-2.0.js"></script>
+
+
+  </body>
+</html>

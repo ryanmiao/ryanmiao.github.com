@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "construct virtualization on RHEL6u5"
-date: 2014-09-17 14:21:53 +0800
+date: 2014-10-27 14:21:53 +0800
 comments: true
 categories: 
 ---
@@ -12,62 +12,76 @@ to construct virtualization from source on RHEL6u5.
 
 ####Prerequisite
 
-source code of gcc, kernel, qemu and libvirt
+source code of kernel, qemu and libvirt
 
-####1. Build tool chain
+libiscsi: 1.11.0-9-g20b4f9a
+libnfs:   libnfs-1.9.4-6-gea283cd
+libusb:   v1.0.19
 
-The reason why we use gcc is because RHEL6u5 has an old gcc, which couldn't
-build latest kernel.
+qemu:     v2.1.0-1124-gb1d28ec
+kernel:   v3.18-rc1-221-gc3351df
+libvirt:  v1.2.9-110-ga27021a
 
-The tool chain we need are gcc and binutils, not including gdb.
+####1. Build kernel
 
-From http://stackoverflow.com/questions/1726042/recipe-for-compiling-binutils-gcc-together
-it said it works to build binutils under gcc simultanously.
-But in recent gcc-4.9.0, it will meet a problem when build intl of binutils, like:
 ```
-checking for x86_64-unknown-linux-gnu-gcc... /home/ryan/workspace/software/toolchain/gcc-build/./prev-gcc/xgcc -B/home/ryan/workspace/software/toolchain/gcc-build/./prev-gcc/ -B/home/ryan/workspace/software/gcc-4.9.0-inst/x86_64-unknown-linux-gnu/bin/ -B/home/ryan/workspace/software/gcc-4.9.0-inst/x86_64-unknown-linux-gnu/bin/ -B/home/ryan/workspace/software/gcc-4.9.0-inst/x86_64-unknown-linux-gnu/lib/ -isystem /home/ryan/workspace/software/gcc-4.9.0-inst/x86_64-unknown-linux-gnu/include -isystem /home/ryan/workspace/software/gcc-4.9.0-inst/x86_64-unknown-linux-gnu/sys-include -L/home/ryan/workspace/software/toolchain/gcc-build/./ld 
-checking for C compiler default output file name... 
-configure: error: in `/home/ryan/workspace/software/toolchain/gcc-build/intl':
-configure: error: C compiler cannot create executables
-See `config.log' for more details.
-make[2]: *** [configure-stage2-intl] Error 77
-make[2]: Leaving directory `/home/ryan/workspace/software/toolchain/gcc-build'
-make[1]: *** [stage2-bubble] Error 2
-make[1]: Leaving directory `/home/ryan/workspace/software/toolchain/gcc-build'
-make: *** [all] Error 2
-```
-What causes it? That is building binutils with '--enable-shared', so two DSO
-will be generated: libbfd-2.24.so and libopcodes.so,
-but the paths of them are not added to LD_LIBRARY_PATH.
-I searched them, the paths are:
-
-/home/ryan/workspace/software/toolchain/gcc-build/prev-bfd/.libs/libbfd-2.24.so
-/home/ryan/workspace/software/toolchain/gcc-build/prev-opcodes/.libs/libopcodes-2.24.so
-
-so add those paths to LD_LIBRARY_PATH, then build.
-
-But the paths seem temporary, and make me feel unloveable, so binutils should be built
-as static(or --disable-shared).
-
-Here is a thread from gcc mail list: https://gcc.gnu.org/ml/gcc/2013-03/msg00160.html
-
-Before the build, comment '-Werror' of WARN_CFLAGS will be a good choice.
-
-1. get the tar package from gnu
-
-2. untar it
-
-3. get some source packages
-```
-$ ./contrib/download_prerequisites
-
-$ wget binutils-2.24.tar.gz
-$ tar zxf binutils-2.24.tar.gz
-$ ln -s binutils binutils-2.24/binutils
-
-$ cd binutils-2.24
-$ ./configure --enable-shared --disable-werror
-$ make
+#make bzImage
+#make modules
+#make modules_install
+#make install
 ```
 
-TBD
+####2. BUild qemu
+
+#####2.1 Build libiscsi, libusb and libnfs respectively
+
+```
+#git clone https://github.com/sahlberg/libiscsi.git
+#autogen
+#make
+#sudo make install
+
+#git clone https://github.com/libusb/libusb.git
+#autogen
+#make
+#sudo make install
+
+#git clone https://github.com/sahlberg/libnfs.git
+#bootstrap
+#make
+#sudo make install
+```
+
+You have to set PKG_CONFIG_PATH to '/usr/local/lib/pkgconfig'
+to continue configure.
+
+#####2.2 Generate qemu
+
+```
+# git clone https://github.com/qemu/qemu.git
+
+# ./configure --target-list=x86_64-softmmu --enable-debug-tcg --enable-debug --disable-strip --enable-vnc --enable-vnc-tls --enable-kvm --enable-uuid --enable-attr --enable-vhost-net --enable-spice --enable-libiscsi --enable-libnfs --enable-libusb --enable-guest-agent --enable-glusterfs
+```
+
+####3. Build libvirt
+
+```
+# autogen --system
+# make
+# make install
+```
+
+
+####4. Troubleshoot
+
+#####4.1 qemu: could not load PC BIOS 'bios-256k.bin'
+Answer: don't specify prefix when configuring qemu, use default prefix instead.
+
+#####4.2 cannot execute binary /usr/libexec/qemu-kvm: Permission denied
+Answer: if SELinux is enabled, it may be caused by SELinux.
+
+```
+# chcon system_u:object_r:qemu_exec_t:s0 /usr/local/bin/qemu-system-x86_64
+```
+
+[The end]

@@ -7,12 +7,12 @@ categories:
 ---
 
 RHEL6u5 is stable distro for building a somewhat server. And if you also
-like traditional SysV instead of systemD, this article give you a guide
+like traditional SysV instead of systemD, this articles give you a guide
 to construct virtualization from source on RHEL6u5.
 
 ####Prerequisite
 
-source code of kernel, qemu and libvirt
+source code of kernel, qemu, libvirt, libiscsi, libnfs and libusb.
 
 libiscsi: 1.11.0-9-g20b4f9a
 libnfs:   libnfs-1.9.4-6-gea283cd
@@ -25,31 +25,31 @@ libvirt:  v1.2.9-110-ga27021a
 ####1. Build kernel
 
 ```
-#make bzImage
-#make modules
-#make modules_install
-#make install
+# make bzImage
+# make modules
+# make modules_install
+# make install
 ```
 
-####2. BUild qemu
+####2. Build qemu
 
 #####2.1 Build libiscsi, libusb and libnfs respectively
 
 ```
-#git clone https://github.com/sahlberg/libiscsi.git
-#autogen
-#make
-#sudo make install
+# git clone https://github.com/sahlberg/libiscsi.git
+# autogen
+# make
+# sudo make install
 
-#git clone https://github.com/libusb/libusb.git
-#autogen
-#make
-#sudo make install
+# git clone https://github.com/libusb/libusb.git
+# autogen
+# make
+# sudo make install
 
-#git clone https://github.com/sahlberg/libnfs.git
-#bootstrap
-#make
-#sudo make install
+# git clone https://github.com/sahlberg/libnfs.git
+# bootstrap
+# make
+# sudo make install
 ```
 
 You have to set PKG_CONFIG_PATH to '/usr/local/lib/pkgconfig'

@@ -9,7 +9,7 @@ categories:
 When I look into QEMU linux-user mode, I want to run a multi-thread program.
 This multi-thread program is extracted from qemu/tests/tcg/linux-test.c.
 
-```
+``` c
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

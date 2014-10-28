@@ -4,7 +4,7 @@
   <title><![CDATA[Jade Palace]]></title>
   <link href="http://jinchengmiao.com/atom.xml" rel="self"/>
   <link href="http://jinchengmiao.com/"/>
-  <updated>2014-10-27T16:34:52+08:00</updated>
+  <updated>2014-10-28T11:56:35+08:00</updated>
   <id>http://jinchengmiao.com/</id>
   <author>
     <name><![CDATA[Jincheng Miao]]></name>
@@ -104,76 +104,78 @@ to continue configure.</p>
     <content type="html"><![CDATA[<p>When I look into QEMU linux-user mode, I want to run a multi-thread program.
 This multi-thread program is extracted from qemu/tests/tcg/linux-test.c.</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"></pre></td><td class='code'><pre><code class=''><span class='line'>#include &lt;stdlib.h&gt;
-</span><span class='line'>#include &lt;stdio.h&gt;
-</span><span class='line'>#include &lt;string.h&gt;
-</span><span class='line'>#include &lt;signal.h&gt;
-</span><span class='line'>#include &lt;unistd.h&gt;
-</span><span class='line'>#include &lt;inttypes.h&gt;
-</span><span class='line'>#include &lt;pthread.h&gt;
-</span><span class='line'>#include &lt;sys/wait.h&gt;
-</span><span class='line'>#include &lt;sched.h&gt;
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"></pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#include &lt;stdlib.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;stdio.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;string.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;signal.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;unistd.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;inttypes.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;pthread.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;sys/wait.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;sched.h&gt;</span>
 </span><span class='line'>
-</span><span class='line'>int thread1_func(void *arg)
-</span><span class='line'>{
-</span><span class='line'>    int i;
-</span><span class='line'>    char buf[512];
+</span><span class='line'><span class="kt">int</span> <span class="nf">thread1_func</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">arg</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">char</span> <span class="n">buf</span><span class="p">[</span><span class="mi">512</span><span class="p">];</span>
 </span><span class='line'>
-</span><span class='line'>    for(i=0;i&lt;10;i++) {
-</span><span class='line'>        snprintf(buf, sizeof(buf), "thread1: %d %s\n", i, (char *)arg);
-</span><span class='line'>       write(1, buf, strlen(buf));
-</span><span class='line'>        usleep(100 * 1000);
-</span><span class='line'>    }
-</span><span class='line'>    return 0;
-</span><span class='line'>}
+</span><span class='line'>    <span class="k">for</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="mi">10</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">snprintf</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">buf</span><span class="p">),</span> <span class="s">&quot;thread1: %d %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span><span class="n">arg</span><span class="p">);</span>
+</span><span class='line'>       <span class="n">write</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="n">buf</span><span class="p">));</span>
+</span><span class='line'>        <span class="n">usleep</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
 </span><span class='line'>
-</span><span class='line'>int thread2_func(void *arg)
-</span><span class='line'>{
-</span><span class='line'>    int i;
-</span><span class='line'>    char buf[512];
-</span><span class='line'>    for(i=0;i&lt;10;i++) {
-</span><span class='line'>        snprintf(buf, sizeof(buf), "thread2: %d %s\n", i, (char *)arg);
-</span><span class='line'>        write(1, buf, strlen(buf));
-</span><span class='line'>        usleep(120 * 1000);
-</span><span class='line'>    }
-</span><span class='line'>    return 0;
-</span><span class='line'>}
+</span><span class='line'><span class="kt">int</span> <span class="nf">thread2_func</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">arg</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">char</span> <span class="n">buf</span><span class="p">[</span><span class="mi">512</span><span class="p">];</span>
+</span><span class='line'>    <span class="k">for</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="mi">10</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">snprintf</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">buf</span><span class="p">),</span> <span class="s">&quot;thread2: %d %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span><span class="n">arg</span><span class="p">);</span>
+</span><span class='line'>        <span class="n">write</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="n">buf</span><span class="p">));</span>
+</span><span class='line'>        <span class="n">usleep</span><span class="p">(</span><span class="mi">120</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
 </span><span class='line'>
-</span><span class='line'>#define STACK_SIZE 16384
+</span><span class='line'><span class="cp">#define STACK_SIZE 16384</span>
 </span><span class='line'>
-</span><span class='line'>void test_clone(void)
-</span><span class='line'>{
-</span><span class='line'>    uint8_t *stack1, *stack2;
-</span><span class='line'>    int pid1, pid2, status1, status2;
+</span><span class='line'><span class="kt">void</span> <span class="nf">test_clone</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="kt">uint8_t</span> <span class="o">*</span><span class="n">stack1</span><span class="p">,</span> <span class="o">*</span><span class="n">stack2</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">pid1</span><span class="p">,</span> <span class="n">pid2</span><span class="p">,</span> <span class="n">status1</span><span class="p">,</span> <span class="n">status2</span><span class="p">;</span>
 </span><span class='line'>
-</span><span class='line'>    stack1 = malloc(STACK_SIZE);
-</span><span class='line'>    pid1 = clone(thread1_func, stack1 + STACK_SIZE,
-</span><span class='line'>                 CLONE_VM | CLONE_FS | CLONE_FILES | SIGCHLD, "hello1");
+</span><span class='line'>    <span class="n">stack1</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="n">STACK_SIZE</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">pid1</span> <span class="o">=</span> <span class="n">clone</span><span class="p">(</span><span class="n">thread1_func</span><span class="p">,</span> <span class="n">stack1</span> <span class="o">+</span> <span class="n">STACK_SIZE</span><span class="p">,</span>
+</span><span class='line'>                 <span class="n">CLONE_VM</span> <span class="o">|</span> <span class="n">CLONE_FS</span> <span class="o">|</span> <span class="n">CLONE_FILES</span> <span class="o">|</span> <span class="n">SIGCHLD</span><span class="p">,</span> <span class="s">&quot;hello1&quot;</span><span class="p">);</span>
 </span><span class='line'>
-</span><span class='line'>    stack2 = malloc(STACK_SIZE);
-</span><span class='line'>    pid2 = clone(thread2_func, stack2 + STACK_SIZE,
-</span><span class='line'>                CLONE_VM | CLONE_FS | CLONE_FILES | SIGCHLD, "hello2");
+</span><span class='line'>    <span class="n">stack2</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="n">STACK_SIZE</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">pid2</span> <span class="o">=</span> <span class="n">clone</span><span class="p">(</span><span class="n">thread2_func</span><span class="p">,</span> <span class="n">stack2</span> <span class="o">+</span> <span class="n">STACK_SIZE</span><span class="p">,</span>
+</span><span class='line'>                <span class="n">CLONE_VM</span> <span class="o">|</span> <span class="n">CLONE_FS</span> <span class="o">|</span> <span class="n">CLONE_FILES</span> <span class="o">|</span> <span class="n">SIGCHLD</span><span class="p">,</span> <span class="s">&quot;hello2&quot;</span><span class="p">);</span>
 </span><span class='line'>
-</span><span class='line'>    while (waitpid(pid1, &status1, 0) != pid1);
-</span><span class='line'>    while (waitpid(pid2, &status2, 0) != pid2);
-</span><span class='line'>    printf("status1=0x%x\n", status1);
-</span><span class='line'>    printf("status2=0x%x\n", status2);
-</span><span class='line'>    printf("End of clone test.\n");
-</span><span class='line'>}
+</span><span class='line'>    <span class="k">while</span> <span class="p">(</span><span class="n">waitpid</span><span class="p">(</span><span class="n">pid1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">status1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">!=</span> <span class="n">pid1</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">while</span> <span class="p">(</span><span class="n">waitpid</span><span class="p">(</span><span class="n">pid2</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">status2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">!=</span> <span class="n">pid2</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;status1=0x%x</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">status1</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;status2=0x%x</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">status2</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;End of clone test.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
 </span><span class='line'>
-</span><span class='line'>int main(int argc, char **argv)
-</span><span class='line'>{
-</span><span class='line'>    test_clone();
-</span><span class='line'>    return 0;
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">test_clone</span><span class="p">();</span>
+</span><span class='line'>    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>But when it runs, I get segv:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"></pre></td><td class='code'><pre><code class=''><span class='line'>$ ~/workspace/virt/qemu/x86_64-linux-user/qemu-x86_64 ./test-clone
-</span><span class='line'>qemu-x86_64: /home/ryan/workspace/virt/qemu/tcg/tcg.c:628: tcg_temp_free_internal: Assertion `idx &gt;= s-&gt;nb_globals && idx &lt; s-&gt;nb_temps' failed.
-</span><span class='line'>qemu: uncaught target signal 11 (Segmentation fault) - core dumped
-</span><span class='line'>Segmentation fault (core dumped)</span></code></pre></td></tr></table></div></figure>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"></pre></td><td class='code'><pre><code class='c'><span class='line'><span class="err">$</span> <span class="o">~/</span><span class="n">workspace</span><span class="o">/</span><span class="n">virt</span><span class="o">/</span><span class="n">qemu</span><span class="o">/</span><span class="n">x86_64</span><span class="o">-</span><span class="n">linux</span><span class="o">-</span><span class="n">user</span><span class="o">/</span><span class="n">qemu</span><span class="o">-</span><span class="n">x86_64</span> <span class="p">.</span><span class="o">/</span><span class="n">test</span><span class="o">-</span><span class="n">clone</span>
+</span><span class='line'><span class="n">qemu</span><span class="o">-</span><span class="nl">x86_64</span><span class="p">:</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">ryan</span><span class="o">/</span><span class="n">workspace</span><span class="o">/</span><span class="n">virt</span><span class="o">/</span><span class="n">qemu</span><span class="o">/</span><span class="n">tcg</span><span class="o">/</span><span class="n">tcg</span><span class="p">.</span><span class="nl">c</span><span class="p">:</span><span class="mi">628</span><span class="o">:</span> <span class="nl">tcg_temp_free_internal</span><span class="p">:</span> <span class="n">Assertion</span> <span class="err">`</span><span class="n">idx</span> <span class="o">&gt;=</span> <span class="n">s</span><span class="o">-&gt;</span><span class="n">nb_globals</span> <span class="o">&amp;&amp;</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="n">s</span><span class="o">-&gt;</span><span class="n">nb_temps</span><span class="err">&#39;</span> <span class="n">failed</span><span class="p">.</span>
+</span><span class='line'><span class="nl">qemu</span><span class="p">:</span> <span class="n">uncaught</span> <span class="n">target</span> <span class="n">signal</span> <span class="mi">11</span> <span class="p">(</span><span class="n">Segmentation</span> <span class="n">fault</span><span class="p">)</span> <span class="o">-</span> <span class="n">core</span> <span class="n">dumped</span>
+</span><span class='line'><span class="n">Segmentation</span> <span class="n">fault</span> <span class="p">(</span><span class="n">core</span> <span class="n">dumped</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>It makes me frastrated, is it related to tcg?
@@ -184,18 +186,19 @@ Maybe, maybe not.</p>
 <p>Firstly, I added &lsquo;-strace&rsquo; option to qemu-x86_64, this option will print
 all syscall qemu emulated, and the return values:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"></pre></td><td class='code'><pre><code class=''><span class='line'>$ ~/workspace/virt/qemu/x86_64-linux-user/qemu-x86_64 -strace ./test-clone
-</span><span class='line'>4459 uname(0x40007fffa0) = 0
-</span><span class='line'>4459 brk(NULL) = 0x00000000006aa000
-</span><span class='line'>4459 brk(0x00000000006ab180) = 0x00000000006ab180
-</span><span class='line'>4459 arch_prctl(4098,6989920,0,6973864,6973856,6973888) = 0
-</span><span class='line'>4459 brk(0x00000000006cc180) = 0x00000000006cc180
-</span><span class='line'>4459 brk(0x00000000006cd000) = 0x00000000006cd000
-</span><span class='line'>4459 clone(CLONE_VM|CLONE_FS|CLONE_FILES|0x11,child_stack=0x00000000006af860,parent_tidptr=0x00000000006a8068,tls=0x0000000000000001,child_tidptr=0x0000000000000001) = 4460
-</span><span class='line'>4459 read(1809,0x6af860,6979688) = -1 errno=14 (Bad address)
-</span><span class='line'>qemu-x86_64: /home/ryan/workspace/virt/qemu/tcg/tcg.c:628: tcg_temp_free_internal: Assertion `idx &gt;= s-&gt;nb_globals && idx &lt; s-&gt;nb_temps' failed.
-</span><span class='line'>qemu: uncaught target signal 11 (Segmentation fault) - core dumped
-</span><span class='line'>Segmentation fault (core dumped)</span></code></pre></td></tr></table></div></figure>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"></pre></td><td class='code'><pre><code class='c'><span class='line'><span class="err">$</span> <span class="o">~/</span><span class="n">workspace</span><span class="o">/</span><span class="n">virt</span><span class="o">/</span><span class="n">qemu</span><span class="o">/</span><span class="n">x86_64</span><span class="o">-</span><span class="n">linux</span><span class="o">-</span><span class="n">user</span><span class="o">/</span><span class="n">qemu</span><span class="o">-</span><span class="n">x86_64</span> <span class="o">-</span><span class="n">strace</span> <span class="p">.</span><span class="o">/</span><span class="n">test</span><span class="o">-</span><span class="n">clone</span>
+</span><span class='line'><span class="mi">4459</span> <span class="n">uname</span><span class="p">(</span><span class="mh">0x40007fffa0</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class='line'><span class="mi">4459</span> <span class="n">brk</span><span class="p">(</span><span class="nb">NULL</span><span class="p">)</span> <span class="o">=</span> <span class="mh">0x00000000006aa000</span>
+</span><span class='line'><span class="mi">4459</span> <span class="n">brk</span><span class="p">(</span><span class="mh">0x00000000006ab180</span><span class="p">)</span> <span class="o">=</span> <span class="mh">0x00000000006ab180</span>
+</span><span class='line'><span class="mi">4459</span> <span class="n">arch_prctl</span><span class="p">(</span><span class="mi">4098</span><span class="p">,</span><span class="mi">6989920</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">6973864</span><span class="p">,</span><span class="mi">6973856</span><span class="p">,</span><span class="mi">6973888</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class='line'><span class="mi">4459</span> <span class="n">brk</span><span class="p">(</span><span class="mh">0x00000000006cc180</span><span class="p">)</span> <span class="o">=</span> <span class="mh">0x00000000006cc180</span>
+</span><span class='line'><span class="mi">4459</span> <span class="n">brk</span><span class="p">(</span><span class="mh">0x00000000006cd000</span><span class="p">)</span> <span class="o">=</span> <span class="mh">0x00000000006cd000</span>
+</span><span class='line'><span class="mi">4459</span> <span class="n">clone</span><span class="p">(</span><span class="n">CLONE_VM</span><span class="o">|</span><span class="n">CLONE_FS</span><span class="o">|</span><span class="n">CLONE_FILES</span><span class="o">|</span><span class="mh">0x11</span><span class="p">,</span><span class="n">child_stack</span><span class="o">=</span><span class="mh">0x00000000006af860</span><span class="p">,</span><span class="n">parent_tidptr</span><span class="o">=</span><span class="mh">0x00000000006a8068</span><span class="p">,</span><span class="n">tls</span><span class="o">=</span><span class="mh">0x0000000000000001</span><span class="p">,</span><span class="n">child_tidptr</span><span class="o">=</span><span class="mh">0x0000000000000001</span><span class="p">)</span> <span class="o">=</span> <span class="mi">4460</span>
+</span><span class='line'><span class="mi">4459</span> <span class="n">read</span><span class="p">(</span><span class="mi">1809</span><span class="p">,</span><span class="mh">0x6af860</span><span class="p">,</span><span class="mi">6979688</span><span class="p">)</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="n">errno</span><span class="o">=</span><span class="mi">14</span> <span class="p">(</span><span class="n">Bad</span> <span class="n">address</span><span class="p">)</span>
+</span><span class='line'><span class="n">qemu</span><span class="o">-</span><span class="nl">x86_64</span><span class="p">:</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">ryan</span><span class="o">/</span><span class="n">workspace</span><span class="o">/</span><span class="n">virt</span><span class="o">/</span><span class="n">qemu</span><span class="o">/</span><span class="n">tcg</span><span class="o">/</span><span class="n">tcg</span><span class="p">.</span><span class="nl">c</span><span class="p">:</span><span class="mi">628</span><span class="o">:</span> <span class="nl">tcg_temp_free_internal</span><span class="p">:</span> <span class="n">Assertion</span> <span class="err">`</span><span class="n">idx</span> <span class="o">&gt;=</span> <span class="n">s</span><span class="o">-&gt;</span><span class="n">nb_globals</span> <span class="o">&amp;&amp;</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="n">s</span><span class="o">-&gt;</span><span class="n">nb_temps</span><span class="err">&#39;</span> <span class="n">failed</span><span class="p">.</span>
+</span><span class='line'><span class="nl">qemu</span><span class="p">:</span> <span class="n">uncaught</span> <span class="n">target</span> <span class="n">signal</span> <span class="mi">11</span> <span class="p">(</span><span class="n">Segmentation</span> <span class="n">fault</span><span class="p">)</span> <span class="o">-</span> <span class="n">core</span> <span class="n">dumped</span>
+</span><span class='line'><span class="n">Segmentation</span> <span class="n">fault</span> <span class="p">(</span><span class="n">core</span> <span class="n">dumped</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>Note: the first column is TID, I added this print in qemu_log():</p>
@@ -205,21 +208,21 @@ all syscall qemu emulated, and the return values:</p>
 
 <p>A small patch to singlestep should be applied:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"></pre></td><td class='code'><pre><code class=''><span class='line'>diff --git a/cpu-exec.c b/cpu-exec.c
-</span><span class='line'>index 38e5f02..64b7289 100644
-</span><span class='line'>--- a/cpu-exec.c
-</span><span class='line'>+++ b/cpu-exec.c
-</span><span class='line'>@@ -622,8 +622,8 @@ int cpu_exec(CPUArchState *env)
-</span><span class='line'>                 }
-</span><span class='line'>                 /* see if we can patch the calling TB. When the TB
-</span><span class='line'>                    spans two pages, we cannot safely do a direct
-</span><span class='line'>-                   jump. */
-</span><span class='line'>-                if (next_tb != 0 && tb-&gt;page_addr[1] == -1) {
-</span><span class='line'>+                   jump. So as when singlestep is enabled. */
-</span><span class='line'>+                if (next_tb != 0 && tb-&gt;page_addr[1] == -1 && !singlestep) {
-</span><span class='line'>                     tb_add_jump((TranslationBlock *)(next_tb & ~TB_EXIT_MASK),
-</span><span class='line'>                                 next_tb & TB_EXIT_MASK, tb);
-</span><span class='line'>                 }
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"></pre></td><td class='code'><pre><code class='c'><span class='line'><span class="n">diff</span> <span class="o">--</span><span class="n">git</span> <span class="n">a</span><span class="o">/</span><span class="n">cpu</span><span class="o">-</span><span class="n">exec</span><span class="p">.</span><span class="n">c</span> <span class="n">b</span><span class="o">/</span><span class="n">cpu</span><span class="o">-</span><span class="n">exec</span><span class="p">.</span><span class="n">c</span>
+</span><span class='line'><span class="n">index</span> <span class="mf">38e5</span><span class="n">f02</span><span class="p">.</span><span class="mf">.64</span><span class="n">b7289</span> <span class="mi">100644</span>
+</span><span class='line'><span class="o">---</span> <span class="n">a</span><span class="o">/</span><span class="n">cpu</span><span class="o">-</span><span class="n">exec</span><span class="p">.</span><span class="n">c</span>
+</span><span class='line'><span class="o">+++</span> <span class="n">b</span><span class="o">/</span><span class="n">cpu</span><span class="o">-</span><span class="n">exec</span><span class="p">.</span><span class="n">c</span>
+</span><span class='line'><span class="err">@@</span> <span class="o">-</span><span class="mi">622</span><span class="p">,</span><span class="mi">8</span> <span class="o">+</span><span class="mi">622</span><span class="p">,</span><span class="mi">8</span> <span class="err">@@</span> <span class="kt">int</span> <span class="n">cpu_exec</span><span class="p">(</span><span class="n">CPUArchState</span> <span class="o">*</span><span class="n">env</span><span class="p">)</span>
+</span><span class='line'>                 <span class="p">}</span>
+</span><span class='line'>                 <span class="cm">/* see if we can patch the calling TB. When the TB</span>
+</span><span class='line'><span class="cm">                    spans two pages, we cannot safely do a direct</span>
+</span><span class='line'><span class="cm">-                   jump. */</span>
+</span><span class='line'><span class="o">-</span>                <span class="k">if</span> <span class="p">(</span><span class="n">next_tb</span> <span class="o">!=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">tb</span><span class="o">-&gt;</span><span class="n">page_addr</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'><span class="o">+</span>                   <span class="n">jump</span><span class="p">.</span> <span class="n">So</span> <span class="n">as</span> <span class="n">when</span> <span class="n">singlestep</span> <span class="n">is</span> <span class="n">enabled</span><span class="p">.</span> <span class="err">*/</span>
+</span><span class='line'><span class="o">+</span>                <span class="k">if</span> <span class="p">(</span><span class="n">next_tb</span> <span class="o">!=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">tb</span><span class="o">-&gt;</span><span class="n">page_addr</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">singlestep</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                     <span class="n">tb_add_jump</span><span class="p">((</span><span class="n">TranslationBlock</span> <span class="o">*</span><span class="p">)(</span><span class="n">next_tb</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">TB_EXIT_MASK</span><span class="p">),</span>
+</span><span class='line'>                                 <span class="n">next_tb</span> <span class="o">&amp;</span> <span class="n">TB_EXIT_MASK</span><span class="p">,</span> <span class="n">tb</span><span class="p">);</span>
+</span><span class='line'>                 <span class="p">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
@@ -227,38 +230,41 @@ all syscall qemu emulated, and the return values:</p>
 
 <p>After re-building qemu-x86_64, run:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"></pre></td><td class='code'><pre><code class=''><span class='line'>~/workspace/virt/qemu/x86_64-linux-user/qemu-x86_64 -singlestep -d exec -strace ./test-clone</span></code></pre></td></tr></table></div></figure>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"></pre></td><td class='code'><pre><code class='c'><span class='line'><span class="o">~/</span><span class="n">workspace</span><span class="o">/</span><span class="n">virt</span><span class="o">/</span><span class="n">qemu</span><span class="o">/</span><span class="n">x86_64</span><span class="o">-</span><span class="n">linux</span><span class="o">-</span><span class="n">user</span><span class="o">/</span><span class="n">qemu</span><span class="o">-</span><span class="n">x86_64</span> <span class="o">-</span><span class="n">singlestep</span> <span class="o">-</span><span class="n">d</span> <span class="n">exec</span> <span class="o">-</span><span class="n">strace</span> <span class="p">.</span><span class="o">/</span><span class="n">test</span><span class="o">-</span><span class="n">clone</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>We can see that after clone executed, the child thread also executed a TB
 (which tb->pc == 0x412de7):</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"></pre></td><td class='code'><pre><code class=''><span class='line'>[4592] Trace 0x7f535879d0d0 [00000000004092e3] _int_malloc
-</span><span class='line'>[4593] Trace 0x7f53587af860 [0000000000412de7] clone
-</span><span class='line'>[4592] Trace 0x7f535879d110 [00000000004092e7] _int_malloc</span></code></pre></td></tr></table></div></figure>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"></pre></td><td class='code'><pre><code class='c'><span class='line'><span class="p">[</span><span class="mi">4592</span><span class="p">]</span> <span class="n">Trace</span> <span class="mh">0x7f535879d0d0</span> <span class="p">[</span><span class="mf">00000000004092e3</span><span class="p">]</span> <span class="n">_int_malloc</span>
+</span><span class='line'><span class="p">[</span><span class="mi">4593</span><span class="p">]</span> <span class="n">Trace</span> <span class="mh">0x7f53587af860</span> <span class="p">[</span><span class="mo">0000000000412</span><span class="n">de7</span><span class="p">]</span> <span class="n">clone</span>
+</span><span class='line'><span class="p">[</span><span class="mi">4592</span><span class="p">]</span> <span class="n">Trace</span> <span class="mh">0x7f535879d110</span> <span class="p">[</span><span class="mf">00000000004092e7</span><span class="p">]</span> <span class="n">_int_malloc</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>Let figure out what is it in 0x412de7. So objdump the test-clone:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"></pre></td><td class='code'><pre><code class=''><span class='line'>0000000000412db0 &lt;__clone&gt;:
-</span><span class='line'>  412db0:       48 c7 c0 ea ff ff ff    mov    $0xffffffffffffffea,%rax
-</span><span class='line'>  412db7:       48 85 ff                test   %rdi,%rdi
-</span><span class='line'>  412dba:       0f 84 40 16 00 00       je     414400 &lt;__syscall_error&gt;
-</span><span class='line'>  412dc0:       48 85 f6                test   %rsi,%rsi
-</span><span class='line'>  412dc3:       0f 84 37 16 00 00       je     414400 &lt;__syscall_error&gt;
-</span><span class='line'>  412dc9:       48 83 ee 10             sub    $0x10,%rsi
-</span><span class='line'>  412dcd:       48 89 4e 08             mov    %rcx,0x8(%rsi)
-</span><span class='line'>  412dd1:       48 89 3e                mov    %rdi,(%rsi)
-</span><span class='line'>  412dd4:       48 89 d7                mov    %rdx,%rdi
-</span><span class='line'>  412dd7:       4c 89 c2                mov    %r8,%rdx
-</span><span class='line'>  412dda:       4d 89 c8                mov    %r9,%r8
-</span><span class='line'>  412ddd:       4c 8b 54 24 08          mov    0x8(%rsp),%r10
-</span><span class='line'>  412de2:       b8 38 00 00 00          mov    $0x38,%eax
-</span><span class='line'>  412de7:       0f 05                   syscall
-</span><span class='line'>  412de9:       48 85 c0                test   %rax,%rax
-</span><span class='line'>  412dec:       0f 8c 0e 16 00 00       jl     414400 &lt;__syscall_error&gt;
-</span><span class='line'>  412df2:       74 01                   je     412df5 &lt;__clone+0x45&gt;
-</span><span class='line'>  412df4:       c3                      retq</span></code></pre></td></tr></table></div></figure>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"></pre></td><td class='code'><pre><code class='c'><span class='line'><span class="mo">0000000000412</span><span class="n">db0</span> <span class="o">&lt;</span><span class="n">__clone</span><span class="o">&gt;:</span>
+</span><span class='line'>  <span class="mi">412</span><span class="nl">db0</span><span class="p">:</span>       <span class="mi">48</span> <span class="n">c7</span> <span class="n">c0</span> <span class="n">ea</span> <span class="n">ff</span> <span class="n">ff</span> <span class="n">ff</span>    <span class="n">mov</span>    <span class="err">$</span><span class="mh">0xffffffffffffffea</span><span class="p">,</span><span class="o">%</span><span class="n">rax</span>
+</span><span class='line'>  <span class="mi">412</span><span class="nl">db7</span><span class="p">:</span>       <span class="mi">48</span> <span class="mi">85</span> <span class="n">ff</span>                <span class="n">test</span>   <span class="o">%</span><span class="n">rdi</span><span class="p">,</span><span class="o">%</span><span class="n">rdi</span>
+</span><span class='line'>  <span class="mi">412</span><span class="nl">dba</span><span class="p">:</span>       <span class="mf">0f</span> <span class="mi">84</span> <span class="mi">40</span> <span class="mi">16</span> <span class="mo">00</span> <span class="mo">00</span>       <span class="n">je</span>     <span class="mi">414400</span> <span class="o">&lt;</span><span class="n">__syscall_error</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="mi">412</span><span class="nl">dc0</span><span class="p">:</span>       <span class="mi">48</span> <span class="mi">85</span> <span class="n">f6</span>                <span class="n">test</span>   <span class="o">%</span><span class="n">rsi</span><span class="p">,</span><span class="o">%</span><span class="n">rsi</span>
+</span><span class='line'>  <span class="mi">412</span><span class="nl">dc3</span><span class="p">:</span>       <span class="mf">0f</span> <span class="mi">84</span> <span class="mi">37</span> <span class="mi">16</span> <span class="mo">00</span> <span class="mo">00</span>       <span class="n">je</span>     <span class="mi">414400</span> <span class="o">&lt;</span><span class="n">__syscall_error</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="mi">412</span><span class="nl">dc9</span><span class="p">:</span>       <span class="mi">48</span> <span class="mi">83</span> <span class="n">ee</span> <span class="mi">10</span>             <span class="n">sub</span>    <span class="err">$</span><span class="mh">0x10</span><span class="p">,</span><span class="o">%</span><span class="n">rsi</span>
+</span><span class='line'>  <span class="mi">412</span><span class="nl">dcd</span><span class="p">:</span>       <span class="mi">48</span> <span class="mi">89</span> <span class="mi">4</span><span class="n">e</span> <span class="mi">08</span>             <span class="n">mov</span>    <span class="o">%</span><span class="n">rcx</span><span class="p">,</span><span class="mh">0x8</span><span class="p">(</span><span class="o">%</span><span class="n">rsi</span><span class="p">)</span>
+</span><span class='line'>  <span class="mi">412</span><span class="nl">dd1</span><span class="p">:</span>       <span class="mi">48</span> <span class="mi">89</span> <span class="mi">3</span><span class="n">e</span>                <span class="n">mov</span>    <span class="o">%</span><span class="n">rdi</span><span class="p">,(</span><span class="o">%</span><span class="n">rsi</span><span class="p">)</span>
+</span><span class='line'>  <span class="mi">412</span><span class="nl">dd4</span><span class="p">:</span>       <span class="mi">48</span> <span class="mi">89</span> <span class="n">d7</span>                <span class="n">mov</span>    <span class="o">%</span><span class="n">rdx</span><span class="p">,</span><span class="o">%</span><span class="n">rdi</span>
+</span><span class='line'>  <span class="mi">412</span><span class="nl">dd7</span><span class="p">:</span>       <span class="mi">4</span><span class="n">c</span> <span class="mi">89</span> <span class="n">c2</span>                <span class="n">mov</span>    <span class="o">%</span><span class="n">r8</span><span class="p">,</span><span class="o">%</span><span class="n">rdx</span>
+</span><span class='line'>  <span class="mi">412</span><span class="nl">dda</span><span class="p">:</span>       <span class="mi">4</span><span class="n">d</span> <span class="mi">89</span> <span class="n">c8</span>                <span class="n">mov</span>    <span class="o">%</span><span class="n">r9</span><span class="p">,</span><span class="o">%</span><span class="n">r8</span>
+</span><span class='line'>  <span class="mi">412</span><span class="nl">ddd</span><span class="p">:</span>       <span class="mi">4</span><span class="n">c</span> <span class="mi">8</span><span class="n">b</span> <span class="mi">54</span> <span class="mi">24</span> <span class="mi">08</span>          <span class="n">mov</span>    <span class="mh">0x8</span><span class="p">(</span><span class="o">%</span><span class="n">rsp</span><span class="p">),</span><span class="o">%</span><span class="n">r10</span>
+</span><span class='line'>  <span class="mi">412</span><span class="nl">de2</span><span class="p">:</span>       <span class="n">b8</span> <span class="mi">38</span> <span class="mo">00</span> <span class="mo">00</span> <span class="mo">00</span>          <span class="n">mov</span>    <span class="err">$</span><span class="mh">0x38</span><span class="p">,</span><span class="o">%</span><span class="n">eax</span>
+</span><span class='line'>  <span class="mi">412</span><span class="nl">de7</span><span class="p">:</span>       <span class="mf">0f</span> <span class="mo">05</span>                   <span class="n">syscall</span>
+</span><span class='line'>  <span class="mi">412</span><span class="nl">de9</span><span class="p">:</span>       <span class="mi">48</span> <span class="mi">85</span> <span class="n">c0</span>                <span class="n">test</span>   <span class="o">%</span><span class="n">rax</span><span class="p">,</span><span class="o">%</span><span class="n">rax</span>
+</span><span class='line'>  <span class="mi">412</span><span class="nl">dec</span><span class="p">:</span>       <span class="mf">0f</span> <span class="mi">8</span><span class="n">c</span> <span class="mi">0</span><span class="n">e</span> <span class="mi">16</span> <span class="mo">00</span> <span class="mo">00</span>       <span class="n">jl</span>     <span class="mi">414400</span> <span class="o">&lt;</span><span class="n">__syscall_error</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="mi">412</span><span class="nl">df2</span><span class="p">:</span>       <span class="mi">74</span> <span class="mo">01</span>                   <span class="n">je</span>     <span class="mi">412</span><span class="n">df5</span> <span class="o">&lt;</span><span class="n">__clone</span><span class="o">+</span><span class="mh">0x45</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="mi">412</span><span class="nl">df4</span><span class="p">:</span>       <span class="n">c3</span>                      <span class="n">retq</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>We could see the TB executed by child thread is syscall instruction,
